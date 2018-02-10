@@ -19,5 +19,13 @@
   "bugs": {
     "url": "https://github.com/apporo/app-sequence/issues"
   },
-  "homepage": "https://github.com/apporo/app-sequence#readme"
+  "homepage": "https://github.com/apporo/app-sequence#readme",
+  "peerDependencies": {
+    "app-webweaver": "^0.2.1",
+    "devebot": "^0.2.4"
+  },
+  "dependencies": {
+    "app-webweaver": "^0.2.1",
+    "devebot": "^0.2.4"
+  }
 }
