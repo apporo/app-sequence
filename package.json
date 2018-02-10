@@ -21,10 +21,12 @@
   },
   "homepage": "https://github.com/apporo/app-sequence#readme",
   "peerDependencies": {
+    "app-tracelog": "^0.2.1",
     "app-webweaver": "^0.2.1",
     "devebot": "^0.2.4"
   },
   "dependencies": {
+    "app-tracelog": "^0.2.1",
     "app-webweaver": "^0.2.1",
     "devebot": "^0.2.4",
     "uuid": "^3.2.1"

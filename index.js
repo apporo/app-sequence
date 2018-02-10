@@ -1,1 +1,4 @@
-module.exports = require('devebot').registerLayerware(__dirname, ['app-webweaver'], []);
+module.exports = require('devebot').registerLayerware(__dirname, [
+  'app-tracelog',
+  'app-webweaver'
+], []);

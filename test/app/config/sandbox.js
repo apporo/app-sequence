@@ -1,7 +1,10 @@
 module.exports = {
   plugins: {
     appSequence: {
-      contextPath: '/hello'
+      contextPath: '/sequence'
+    },
+    appTracelog: {
+      tracingPaths: [ '/sequence/*' ]
     },
     appWebserver: {
       port: 17771
