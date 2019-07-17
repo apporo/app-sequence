@@ -39,19 +39,16 @@
   },
   "homepage": "https://github.com/apporo/app-sequence#readme",
   "peerDependencies": {
-    "app-tracelog": "^0.3.0",
-    "app-webweaver": "^0.3.0",
     "devebot": "^0.3.0",
     "devebot-co-redis": "^0.3.0"
   },
   "dependencies": {
-    "app-tracelog": "^0.3.0",
-    "app-webweaver": "^0.3.0",
     "devebot": "^0.3.0",
     "devebot-co-redis": "^0.3.0",
     "moment": "^2.24.0"
   },
   "devDependencies": {
+    "app-restfront": "^0.3.2",
     "babel-cli": "^6.26.0",
     "babel-plugin-minify-mangle-names": "^0.3.0",
     "babel-preset-env": "^1.6.1",

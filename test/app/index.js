@@ -5,6 +5,7 @@ var path = require('path');
 var app = require('devebot').launchApplication({
   appRootPath: __dirname
 }, [
+  'app-restfront',
   {
     name: 'app-sequence',
     path: path.join(__dirname, '../../index.js')
