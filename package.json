@@ -41,12 +41,13 @@
   "peerDependencies": {
     "app-tracelog": "^0.3.0",
     "app-webweaver": "^0.3.0",
-    "devebot": "^0.3.0"
+    "devebot-co-redis": "^0.3.0"
   },
   "dependencies": {
     "app-tracelog": "^0.3.0",
     "app-webweaver": "^0.3.0",
     "devebot": "^0.3.0",
+    "devebot-co-redis": "^0.3.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {

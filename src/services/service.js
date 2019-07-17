@@ -1,22 +1,20 @@
 'use strict';
 
-var uuid = require('uuid/v4');
-
-function Service (params = {}) {
-  var L = params.loggingFactory.getLogger();
-  var T = params.loggingFactory.getTracer();
-  var express = params.webweaverService.express;
-
-  var pluginCfg = params.sandboxConfig;
-  var contextPath = pluginCfg.contextPath || '/sequence';
+function Service ({ sandboxConfig, loggingFactory, sequenceHandler, tracelogService, webweaverService }) {
+  const L = loggingFactory.getLogger();
+  const T = loggingFactory.getTracer();
+  const contextPath = sandboxConfig.contextPath || '/sequence';
+  const express = webweaverService.express;
 
   this.buildRestRouter = function() {
-    var router = express.Router();
+    const router = express.Router();
     router.route('/generate').get(function(req, res, next) {
-      res.json({
-        number: uuid(),
-        requestId: params.tracelogService.getRequestId(req)
-      });
+      sequenceHandler.generate().then(function (count) {
+        res.json({
+          number: count,
+          requestId: tracelogService.getRequestId(req)
+        });
+      })
     });
     return router;
   }
@@ -29,17 +27,21 @@ function Service (params = {}) {
     };
   }
 
-  if (pluginCfg.autowired !== false) {
-    params.webweaverService.push([
-      params.webweaverService.getJsonBodyParserLayer([
-        params.tracelogService.getTracingBoundaryLayer(),
-        params.tracelogService.getTracingListenerLayer(),
+  if (sandboxConfig.autowired !== false) {
+    webweaverService.push([
+      webweaverService.getJsonBodyParserLayer([
+        tracelogService.getTracingBoundaryLayer(),
+        tracelogService.getTracingListenerLayer(),
         this.getRestRouterLayer()
       ])
-    ], pluginCfg.priority);
+    ], sandboxConfig.priority);
   }
 }
 
-Service.referenceList = [ "tracelogService", "webweaverService" ]
+Service.referenceHash = {
+  sequenceHandler: "handler",
+  tracelogService: "app-tracelog/tracelogService",
+  webweaverService: "app-webweaver/webweaverService"
+}
 
 module.exports = Service;
