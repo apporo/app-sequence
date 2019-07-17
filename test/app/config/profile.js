@@ -1,7 +1,7 @@
 module.exports = {
   devebot: {
     verbose: true,
-    mode: 'command',
+    mode: 'silent',
     jobqueue: {
       enabled: false
     }
@@ -15,11 +15,6 @@ module.exports = {
         timestamp: true,
         colorize: true
       }
-    }
-  },
-  newFeatures: {
-    application: {
-      sandboxConfig: true
     }
   }
 };

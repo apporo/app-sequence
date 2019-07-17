@@ -2,18 +2,15 @@
 
 var uuid = require('uuid/v4');
 
-var Service = function(params) {
-  params = params || {};
-  var self = this;
-
-  var LX = params.loggingFactory.getLogger();
-  var LT = params.loggingFactory.getTracer();
+function Service (params = {}) {
+  var L = params.loggingFactory.getLogger();
+  var T = params.loggingFactory.getTracer();
   var express = params.webweaverService.express;
 
   var pluginCfg = params.sandboxConfig;
   var contextPath = pluginCfg.contextPath || '/sequence';
 
-  self.buildRestRouter = function() {
+  this.buildRestRouter = function() {
     var router = express.Router();
     router.route('/generate').get(function(req, res, next) {
       res.json({
@@ -24,11 +21,11 @@ var Service = function(params) {
     return router;
   }
 
-  self.getRestRouterLayer = function() {
+  this.getRestRouterLayer = function() {
     return {
-      name: 'app-sequence-rest',
+      name: 'app-sequence-restapi',
       path: contextPath,
-      middleware: self.buildRestRouter()
+      middleware: this.buildRestRouter()
     };
   }
 
@@ -37,7 +34,7 @@ var Service = function(params) {
       params.webweaverService.getJsonBodyParserLayer([
         params.tracelogService.getTracingBoundaryLayer(),
         params.tracelogService.getTracingListenerLayer(),
-        self.getRestRouterLayer()
+        this.getRestRouterLayer()
       ])
     ], pluginCfg.priority);
   }

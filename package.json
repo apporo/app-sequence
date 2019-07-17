@@ -1,10 +1,24 @@
 {
   "name": "app-sequence",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Sequence ID generator",
   "main": "index.js",
+  "directories": {
+    "lib": "lib/"
+  },
+  "files": [
+    "bin/",
+    "config/",
+    "data/",
+    "lib/"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel ./src -d ./lib",
+    "clean": "rm -rf ./lib",
+    "prepublish": "npm run clean && cross-env NODE_ENV=production npm run build",
+    "pretest": "npm run clean && cross-env NODE_ENV=test npm run build",
+    "test": "mocha ./test/{bdd,tdd}/*test.js",
+    "verify": "npm run prepublish && mocha ./test/{bdd,tdd}/*test.js"
   },
   "repository": {
     "type": "git",
@@ -14,21 +28,35 @@
     "devebot",
     "devebot-plugin"
   ],
-  "author": "",
+  "author": {
+    "name": "apporo",
+    "email": "apporo@devebot.com",
+    "url": "https://github.com/apporo"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/apporo/app-sequence/issues"
   },
   "homepage": "https://github.com/apporo/app-sequence#readme",
   "peerDependencies": {
-    "app-tracelog": "^0.2.1",
-    "app-webweaver": "^0.2.1",
-    "devebot": "^0.2.4"
+    "app-tracelog": "^0.3.0",
+    "app-webweaver": "^0.3.0",
+    "devebot": "^0.3.0"
   },
   "dependencies": {
-    "app-tracelog": "^0.2.1",
-    "app-webweaver": "^0.2.1",
-    "devebot": "^0.2.4",
+    "app-tracelog": "^0.3.0",
+    "app-webweaver": "^0.3.0",
+    "devebot": "^0.3.0",
     "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-minify-mangle-names": "^0.3.0",
+    "babel-preset-env": "^1.6.1",
+    "chai": "^4.1.2",
+    "cross-env": "^5.2.0",
+    "mocha": "^4.1.0",
+    "rewire": "^4.0.1",
+    "sinon": "^7.3.2"
   }
 }
