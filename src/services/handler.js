@@ -8,8 +8,7 @@ const moment = require('moment');
 function Service ({ sandboxConfig, loggingFactory, counterClient }) {
   const L = loggingFactory.getLogger();
   const T = loggingFactory.getTracer();
-
-  const counterStateKey = "sequence-counter";
+  const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
 
   let counter = null;
   function getCounter () {

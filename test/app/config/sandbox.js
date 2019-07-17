@@ -2,7 +2,7 @@ module.exports = {
   plugins: {
     appSequence: {
       contextPath: '/sequence',
-      counterRedisKey: 'sequence-counter'
+      counterStateKey: 'sequence-counter'
     },
     appTracelog: {
       tracingPaths: [ '/sequence/*' ]
