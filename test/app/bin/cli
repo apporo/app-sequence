@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+var cli = require('devebot-cli');
+cli({
+  defaultConfig: {
+    path: '/app-sequence-example',
+    tunnel: {
+      enabled: false
+    }
+  }
+});

@@ -1,4 +1,11 @@
 module.exports = {
+  devebot: {
+    verbose: true,
+    mode: 'command',
+    jobqueue: {
+      enabled: false
+    }
+  },
   logger: {
     transports: {
       console: {

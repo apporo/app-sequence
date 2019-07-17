@@ -1,0 +1,17 @@
+{
+  "name": "app-sequence-example",
+  "version": "0.1.0",
+  "description": "Devebot application sequence layerware example",
+  "main": "index.js",
+  "bin": {
+    "sequence": "./bin/cli"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "devebot",
+  "license": "ISC",
+  "dependencies": {
+    "devebot-cli": "^0.2.1"
+  }
+}
