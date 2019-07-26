@@ -1,6 +1,6 @@
 module.exports = {
   bridges: {
-    "redis": {
+    redis: {
       appSequence: {
         stateStore: {
           clientOptions: {

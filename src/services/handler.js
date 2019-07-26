@@ -44,12 +44,22 @@ function Service ({ sandboxConfig, loggingFactory, counterClient }) {
 
   this.generate = function () {
     const now = moment.utc();
+    L.has('info') && L.log('info', T.add({ now }).toMessage({
+      tmpl: 'Generate a new ID at ${now}'
+    }));
     return Promise.resolve()
     .then(function() {
       return getTtlCommand()(counterStateKey).then(function(val) {
+        L.has('silly') && L.log('silly', T.add({ counterStateKey, ttl: val }).toMessage({
+          tmpl: 'TTL of ${counterStateKey}: ${ttl}'
+        }));
         if (val <= -1) {
-          const tomorrow = now.add(1, 'd').hour(0).minute(0).second(0).millisecond(1);
-          return getExpireAtCommand()(counterStateKey, tomorrow.valueOf()); // 0 or 1
+          const tomorrow = now.add(1, 'd').hour(0).minute(0).second(0).millisecond(0);
+          const unixtime = tomorrow.valueOf() / 1000;
+          L.has('silly') && L.log('silly', T.add({ tomorrow, unixtime }).toMessage({
+            tmpl: 'Set a new expire for ${counterStateKey} at: ${tomorrow}, in unixtime: ${unixtime}'
+          }));
+          return getExpireAtCommand()(counterStateKey, unixtime); // 0 or 1
         }
         return -1;
       })
@@ -57,7 +67,12 @@ function Service ({ sandboxConfig, loggingFactory, counterClient }) {
     .then(function(val) {
       return getIncrCommand()(counterStateKey);
     })
-    .then(generateID);
+    .then(function(incr) {
+      L.has('info') && L.log('info', T.toMessage({
+        tmpl: 'Increase the counter'
+      }));
+      return generateID(incr, now);
+    });
   }
 }
 
@@ -73,12 +88,11 @@ function generateID (incr, now) {
 
 function getDate (now, formatType) {
   now = moment.utc(now);
-  let dayOfYear = now.dayOfYear();
   let dd = now.date();
   let mm = now.month();
   let yyyy = now.year();
   if (formatType === 'DAY_OF_YEAR') {
-
+    let dayOfYear = now.dayOfYear();
   }
   return yyyy + '-' + letterOf(mm) + letterOf(dd-1);
 }
