@@ -42,36 +42,42 @@ function Service ({ sandboxConfig, loggingFactory, counterClient }) {
     return _TtlCommand;
   }
 
-  this.generate = function () {
+  this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
     const now = moment.utc();
-    L.has('info') && L.log('info', T.add({ now }).toMessage({
-      tmpl: 'Generate a new ID at ${now}'
+    L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
+      tmpl: 'Req[${requestId}] Generate a new ID at ${now}'
     }));
     return Promise.resolve()
     .then(function() {
       return getTtlCommand()(counterStateKey).then(function(val) {
-        L.has('silly') && L.log('silly', T.add({ counterStateKey, ttl: val }).toMessage({
-          tmpl: 'TTL of ${counterStateKey}: ${ttl}'
+        L.has('silly') && L.log('silly', T.add({ requestId, counterStateKey, ttl: val }).toMessage({
+          tmpl: 'Req[${requestId}] TTL of ${counterStateKey}: ${ttl}'
         }));
         if (val <= -1) {
           const tomorrow = now.add(1, 'd').hour(0).minute(0).second(0).millisecond(0);
           const unixtime = tomorrow.valueOf() / 1000;
-          L.has('silly') && L.log('silly', T.add({ tomorrow, unixtime }).toMessage({
-            tmpl: 'Set a new expire for ${counterStateKey} at: ${tomorrow}, in unixtime: ${unixtime}'
+          L.has('silly') && L.log('silly', T.add({ requestId, tomorrow, unixtime }).toMessage({
+            tmpl: 'Req[${requestId}] Set a new expire for ${counterStateKey} at: ${tomorrow}, in unixtime: ${unixtime}'
           }));
           return getExpireAtCommand()(counterStateKey, unixtime); // 0 or 1
         }
         return -1;
       })
     })
-    .then(function(val) {
+    .then(function (val) {
       return getIncrCommand()(counterStateKey);
     })
-    .then(function(incr) {
-      L.has('info') && L.log('info', T.toMessage({
-        tmpl: 'Generate the ID from increased count value [${incr}]'
+    .then(function (incr) {
+      L.has('info') && L.log('info', T.add({ requestId, incr }).toMessage({
+        tmpl: 'Req[${requestId}] Generate the ID from increased count value [${incr}]'
       }));
       return generateID(incr, now);
+    })
+    .catch(function (err) {
+      L.has('info') && L.log('info', T.add({ requestId }).toMessage({
+        tmpl: 'Req[${requestId}] generate() function has failed'
+      }));
+      return Promise.reject(err);
     });
   }
 }
