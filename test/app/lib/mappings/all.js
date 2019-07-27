@@ -6,7 +6,9 @@ var mappings = [
     method: 'GET',
     input: {
       transform: function (req) {
-        return {}
+        return {
+          requestId: req.get('X-Request-Id')
+        }
       },
     },
     serviceName: 'app-sequence/handler',
