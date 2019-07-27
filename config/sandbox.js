@@ -1,4 +1,9 @@
 module.exports = {
+  plugins: {
+    appSequence: {
+      timeout: 5000
+    }
+  },
   bridges: {
     redis: {
       appSequence: {

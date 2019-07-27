@@ -3,41 +3,66 @@
 const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
 const lodash = Devebot.require('lodash');
+const logolite = Devebot.require('logolite');
+const genUUID = logolite.LogConfig.getLogID;
 const moment = require('moment');
 
-function Service ({ sandboxConfig, loggingFactory, counterClient }) {
+function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
   const L = loggingFactory.getLogger();
   const T = loggingFactory.getTracer();
   const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
 
-  let counter = null;
+  const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
+
+  let counterClient = null;
+  let counterEnabled = true;
+
   function getCounter () {
-    return counter = counter || counterClient.open();
+    if (!counterClient) {
+      counterClient = counterDialect.open();
+      counterClient.on("ready", function () {
+        counterEnabled = true;
+        L.has('info') && L.log('info', T.toMessage({
+          text: 'Redis connection is ready'
+        }));
+      });
+      counterClient.on("error", function (err) {
+        counterEnabled = false;
+        L.has('warn') && L.log('warn', T.add({
+          errName: err.name, errMessage: err.message
+        }).toMessage({
+          text: 'Redis connection is breaking down'
+        }));
+      });
+    }
+    return counterClient;
   }
+
+  let renewCommand = false;
 
   let _IncrCommand = null;
   function getIncrCommand () {
-    if (_IncrCommand == null) {
-      const counter = getCounter();
-      _IncrCommand = Bluebird.promisify(counter.incr, { context: counter });
+    if (_IncrCommand == null || renewCommand) {
+      const counterClient = getCounter();
+      _IncrCommand = Bluebird.promisify(counterClient.incr, { context: counterClient });
     }
     return _IncrCommand;
   }
 
   let _ExpireAtCommand = null;
   function getExpireAtCommand () {
-    if (_ExpireAtCommand == null) {
-      const counter = getCounter();
-      _ExpireAtCommand = Bluebird.promisify(counter.expireat, { context: counter });
+    if (_ExpireAtCommand == null || renewCommand) {
+      const counterClient = getCounter();
+      _ExpireAtCommand = Bluebird.promisify(counterClient.expireat, { context: counterClient });
     }
     return _ExpireAtCommand;
   }
 
   let _TtlCommand = null;
   function getTtlCommand () {
-    if (_TtlCommand == null) {
-      const counter = getCounter();
-      _TtlCommand = Bluebird.promisify(counter.ttl, { context: counter });
+    if (_TtlCommand == null || renewCommand) {
+      const counterClient = getCounter();
+      _TtlCommand = Bluebird.promisify(counterClient.ttl, { context: counterClient });
     }
     return _TtlCommand;
   }
@@ -47,8 +72,18 @@ function Service ({ sandboxConfig, loggingFactory, counterClient }) {
     L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
       tmpl: 'Req[${requestId}] Generate a new ID at ${now}'
     }));
-    return Promise.resolve()
-    .then(function() {
+
+    let p = Bluebird.resolve();
+
+    if (timeout > 0) {
+      p = p.timeout(timeout);
+    }
+
+    if (counterEnabled === false) {
+      p = Bluebird.reject();
+    }
+
+    p = p.then(function() {
       return getTtlCommand()(counterStateKey).then(function(val) {
         L.has('silly') && L.log('silly', T.add({ requestId, counterStateKey, ttl: val }).toMessage({
           tmpl: 'Req[${requestId}] TTL of ${counterStateKey}: ${ttl}'
@@ -63,27 +98,40 @@ function Service ({ sandboxConfig, loggingFactory, counterClient }) {
         }
         return -1;
       })
-    })
-    .then(function (val) {
+    });
+
+    p = p.then(function (val) {
       return getIncrCommand()(counterStateKey);
-    })
-    .then(function (incr) {
+    });
+
+    p = p.then(function (incr) {
       L.has('info') && L.log('info', T.add({ requestId, incr }).toMessage({
         tmpl: 'Req[${requestId}] Generate the ID from increased count value [${incr}]'
       }));
       return generateID(incr, now);
-    })
-    .catch(function (err) {
-      L.has('info') && L.log('info', T.add({ requestId }).toMessage({
-        tmpl: 'Req[${requestId}] generate() function has failed'
-      }));
-      return Promise.reject(err);
     });
+
+    p = p.catch(function (err) {
+      if (sandboxConfig.breakOnError) {
+        L.has('info') && L.log('info', T.add({ requestId }).toMessage({
+          tmpl: 'Req[${requestId}] generate() function has failed, break the processing'
+        }));
+        return Bluebird.reject(err);
+      } else {
+        const tempId = genUUID();
+        L.has('info') && L.log('info', T.add({ requestId, tempId }).toMessage({
+          tmpl: 'Req[${requestId}] generate() function has failed, use a UUID [${tempId}] instead'
+        }));
+        return Bluebird.resolve(tempId);
+      }
+    });
+
+    return p;
   }
 }
 
 Service.referenceHash = {
-  counterClient: "redis#stateStore"
+  counterDialect: "redis#stateStore"
 }
 
 module.exports = Service;
