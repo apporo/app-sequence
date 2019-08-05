@@ -145,9 +145,9 @@ function getDate (now, formatType) {
   let dd = now.date();
   let mm = now.month();
   let yyyy = now.year();
-  if (formatType === 'DAY_OF_YEAR') {
-    let dayOfYear = now.dayOfYear();
-  }
+  // if (formatType === 'DAY_OF_YEAR') {
+  //   let dayOfYear = now.dayOfYear();
+  // }
   return yyyy + '-' + letterOf(mm) + letterOf(dd-1);
 }
 
