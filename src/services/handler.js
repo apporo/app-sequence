@@ -6,101 +6,7 @@ const lodash = Devebot.require('lodash');
 const logolite = Devebot.require('logolite');
 const genUUID = logolite.LogConfig.getLogID;
 const moment = require('moment');
-
-function RedisCounter ({ L, T, timeout, counterStateKey, counterDialect }) {
-  let counterClient = null;
-  let counterEnabled = true;
-
-  function getCounter () {
-    if (!counterClient) {
-      counterClient = counterDialect.open();
-      counterClient.on("ready", function () {
-        counterEnabled = true;
-        L.has('info') && L.log('info', T.toMessage({
-          text: 'Redis connection is ready'
-        }));
-      });
-      counterClient.on("error", function (err) {
-        counterEnabled = false;
-        L.has('warn') && L.log('warn', T.add({
-          errName: err.name, errMessage: err.message
-        }).toMessage({
-          text: 'Redis connection is breaking down'
-        }));
-      });
-    }
-    return counterClient;
-  }
-
-  let renewCommand = false;
-
-  let _IncrCommand = null;
-  function getIncrCommand () {
-    if (_IncrCommand == null || renewCommand) {
-      const counterClient = getCounter();
-      _IncrCommand = Bluebird.promisify(counterClient.incr, { context: counterClient });
-    }
-    return _IncrCommand;
-  }
-
-  let _ExpireAtCommand = null;
-  function getExpireAtCommand () {
-    if (_ExpireAtCommand == null || renewCommand) {
-      const counterClient = getCounter();
-      _ExpireAtCommand = Bluebird.promisify(counterClient.expireat, { context: counterClient });
-    }
-    return _ExpireAtCommand;
-  }
-
-  let _TtlCommand = null;
-  function getTtlCommand () {
-    if (_TtlCommand == null || renewCommand) {
-      const counterClient = getCounter();
-      _TtlCommand = Bluebird.promisify(counterClient.ttl, { context: counterClient });
-    }
-    return _TtlCommand;
-  }
-
-  this.next = function({ requestId } = {}) {
-    const now = moment.utc();
-    L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
-      tmpl: 'Req[${requestId}] Generate a new ID at ${now}'
-    }));
-
-    let p = Bluebird.resolve();
-
-    if (timeout > 0) {
-      p = p.timeout(timeout);
-    }
-
-    if (counterEnabled === false) {
-      p = Bluebird.reject();
-    }
-
-    p = p.then(function() {
-      return getTtlCommand()(counterStateKey).then(function(val) {
-        L.has('silly') && L.log('silly', T.add({ requestId, counterStateKey, ttl: val }).toMessage({
-          tmpl: 'Req[${requestId}] TTL of ${counterStateKey}: ${ttl}'
-        }));
-        if (val <= -1) {
-          const tomorrow = now.add(1, 'd').hour(0).minute(0).second(0).millisecond(0);
-          const unixtime = tomorrow.valueOf() / 1000;
-          L.has('silly') && L.log('silly', T.add({ requestId, tomorrow, unixtime }).toMessage({
-            tmpl: 'Req[${requestId}] Set a new expire for ${counterStateKey} at: ${tomorrow}, in unixtime: ${unixtime}'
-          }));
-          return getExpireAtCommand()(counterStateKey, unixtime); // 0 or 1
-        }
-        return -1;
-      })
-    });
-
-    p = p.then(function (val) {
-      return getIncrCommand()(counterStateKey);
-    });
-
-    return p;
-  }
-}
+const UniqueCounter = require('../supports/unique-counter');
 
 function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
   const L = loggingFactory.getLogger();
@@ -109,7 +15,7 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
 
   const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
 
-  const counter = new RedisCounter({ L, T, timeout, counterStateKey, counterDialect })
+  const counter = new UniqueCounter({ L, T, timeout, counterStateKey, counterDialect })
 
   this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
     let p = counter.next({ requestId });
