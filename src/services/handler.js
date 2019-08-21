@@ -7,13 +7,7 @@ const logolite = Devebot.require('logolite');
 const genUUID = logolite.LogConfig.getLogID;
 const moment = require('moment');
 
-function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
-  const L = loggingFactory.getLogger();
-  const T = loggingFactory.getTracer();
-  const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
-
-  const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
-
+function RedisCounter ({ L, T, timeout, counterStateKey, counterDialect }) {
   let counterClient = null;
   let counterEnabled = true;
 
@@ -67,7 +61,7 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
     return _TtlCommand;
   }
 
-  this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
+  this.next = function({ requestId } = {}) {
     const now = moment.utc();
     L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
       tmpl: 'Req[${requestId}] Generate a new ID at ${now}'
@@ -104,11 +98,27 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
       return getIncrCommand()(counterStateKey);
     });
 
+    return p;
+  }
+}
+
+function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
+  const L = loggingFactory.getLogger();
+  const T = loggingFactory.getTracer();
+  const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
+
+  const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
+
+  const counter = new RedisCounter({ L, T, timeout, counterStateKey, counterDialect })
+
+  this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
+    let p = counter.next({ requestId });
+
     p = p.then(function (incr) {
       L.has('info') && L.log('info', T.add({ requestId, incr }).toMessage({
         tmpl: 'Req[${requestId}] Generate the ID from increased count value [${incr}]'
       }));
-      return generateID(incr, now);
+      return generateID(incr);
     });
 
     p = p.catch(function (err) {
