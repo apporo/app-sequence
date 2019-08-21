@@ -2,10 +2,9 @@
 
 const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
-const lodash = Devebot.require('lodash');
 const logolite = Devebot.require('logolite');
 const genUUID = logolite.LogConfig.getLogID;
-const moment = require('moment');
+const DailyGenerator = require('../supports/daily-generator');
 const UniqueCounter = require('../supports/unique-counter');
 
 function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
@@ -17,15 +16,10 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
 
   const counter = new UniqueCounter({ L, T, timeout, counterStateKey, counterDialect })
 
-  this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
-    let p = counter.next({ requestId });
+  const generator = new DailyGenerator({ L, T, counter, digits: 5 });
 
-    p = p.then(function (incr) {
-      L.has('info') && L.log('info', T.add({ requestId, incr }).toMessage({
-        tmpl: 'Req[${requestId}] Generate the ID from increased count value [${incr}]'
-      }));
-      return generateID(incr);
-    });
+  this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
+    let p = generator.generate({ requestId });
 
     p = p.catch(function (err) {
       if (sandboxConfig.breakOnError) {
@@ -51,23 +45,3 @@ Service.referenceHash = {
 }
 
 module.exports = Service;
-
-function generateID (incr, now) {
-  return getDate(now) + '-' + lodash.padStart(incr, 5, '0');
-}
-
-function getDate (now, formatType) {
-  now = moment.utc(now);
-  let dd = now.date();
-  let mm = now.month();
-  let yyyy = now.year();
-  // if (formatType === 'DAY_OF_YEAR') {
-  //   let dayOfYear = now.dayOfYear();
-  // }
-  return yyyy + '-' + letterOf(mm) + letterOf(dd-1);
-}
-
-function letterOf(number) {
-  if (number < 10) return number;
-  return String.fromCharCode('A'.charCodeAt(0) + (number - 10));
-}
