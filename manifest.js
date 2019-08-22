@@ -4,19 +4,13 @@ module.exports = {
       "schema": {
         "type": "object",
         "properties": {
-          "breakOnError": {
-            "type": "boolean"
-          },
           "counterStateKey": {
-            "type": "string"
-          },
-          "expirationPeriod": {
             "type": "string"
           },
           "sequenceGenerator": {
             "type": "object",
             "patternProperties": {
-              "^.+$": {
+              "^[a-z][a-z\\-]*[a-z]$": {
                 "type": "object",
                 "properties": {
                   "expirationPeriod": {
@@ -29,7 +23,10 @@ module.exports = {
           },
           "timeout": {
             "type": "number"
-          }
+          },
+          "breakOnError": {
+            "type": "boolean"
+          },
         },
         "additionalProperties": false
       }

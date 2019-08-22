@@ -14,6 +14,10 @@ function OptionSanitizer ({ sequenceGenerator }) {
         sanitizeExpiresPeriod(sequenceGenerator[sequenceName].expirationPeriod) || 'd';
   }
 
+  this.hasSequenceName = function (sequenceName) {
+    return (sequenceName in sequenceGenerator);
+  }
+
   this.getSequenceName = function (sequenceName) {
     if (sequenceName in sequenceGenerator) {
       return sequenceName;

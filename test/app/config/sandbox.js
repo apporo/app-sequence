@@ -18,11 +18,13 @@ module.exports = {
       tracingBoundaryEnabled: true
     },
     appSequence: {
-      expirationPeriod: 'y',
       counterStateKey: 'dev:sequence-counter',
       sequenceGenerator: {
-        momi: {
+        example: {
           expirationPeriod: 'm'
+        },
+        "abc-xyz": {
+          expirationPeriod: 'y'
         }
       },
     },

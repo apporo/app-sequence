@@ -22,8 +22,8 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
 
   const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: 5 });
 
-  this.generate = function (opts) {
-    const { requestId } = opts || { requestId: 'unknown' };
+  this.generate = function (opts = { requestId: 'unknown' }) {
+    const { requestId } = opts;
     let p = generator.generate(opts);
 
     p = p.catch(function (err) {
