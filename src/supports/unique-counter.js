@@ -113,13 +113,15 @@ function UniqueCounter (params = {}) {
 }
 
 function nextExpiredTime(now, expirationPeriod) {
+  // clone the [now] object
+  now = moment.utc(now);
   switch (expirationPeriod) {
     case 'd':
       return now.add(1, 'days').hour(0).minute(0).second(0).millisecond(0);
     case 'm':
-      return now.add(1, 'months').day(0).hour(0).minute(0).second(0).millisecond(0);
+      return now.add(1, 'months').date(1).hour(0).minute(0).second(0).millisecond(0);
     case 'y':
-      return now.add(1, 'years').month(0).day(0).hour(0).minute(0).second(0).millisecond(0);
+      return now.add(1, 'years').month(0).date(1).hour(0).minute(0).second(0).millisecond(0);
   }
   throw new Error('Invalid expirationPeriod');
 }

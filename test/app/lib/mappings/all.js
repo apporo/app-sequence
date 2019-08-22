@@ -2,7 +2,7 @@
 
 var mappings = [
   {
-    path: [ '/generate/:sequenceName' ],
+    path: [ '/generate', '/generate/:sequenceName' ],
     method: 'GET',
     input: {
       transform: function (req) {
