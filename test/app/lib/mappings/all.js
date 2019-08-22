@@ -2,13 +2,14 @@
 
 var mappings = [
   {
-    path: '/generate',
+    path: [ '/generate/:sequenceName' ],
     method: 'GET',
     input: {
       transform: function (req) {
         return {
           requestId: req.get('X-Request-Id'),
-          expirationPeriod: req.get('X-Expiration-Period')
+          expirationPeriod: req.get('X-Expiration-Period'),
+          sequenceName: req.params.sequenceName
         }
       },
     },

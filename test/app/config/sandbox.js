@@ -19,7 +19,12 @@ module.exports = {
     },
     appSequence: {
       expirationPeriod: 'y',
-      counterStateKey: 'dev:sequence-counter'
+      counterStateKey: 'dev:sequence-counter',
+      sequenceGenerator: {
+        momi: {
+          expirationPeriod: 'm'
+        }
+      },
     },
     appWebserver: {
       port: 17771

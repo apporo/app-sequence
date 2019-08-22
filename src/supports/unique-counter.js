@@ -61,10 +61,12 @@ function UniqueCounter (params = {}) {
   }
 
   this.next = function({ requestId, sequenceName, expirationPeriod } = {}) {
-    sequenceName = sanitizer.getSequenceName(sequenceName);
-    expirationPeriod = sanitizer.getExpirationPeriod(sequenceName, expirationPeriod);
+    if (sanitizer) {
+      sequenceName = sanitizer.getSequenceName(sequenceName);
+      expirationPeriod = sanitizer.getExpirationPeriod(sequenceName, expirationPeriod);
+    }
 
-    const counterByPeriod = [ counterStateKey, sequenceName, expirationPeriod ].join(':');
+    const counterName = [ counterStateKey, sequenceName, expirationPeriod ].join(':');
 
     const now = moment.utc();
     L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
@@ -82,24 +84,24 @@ function UniqueCounter (params = {}) {
     }
 
     p = p.then(function() {
-      return getTtlCommand()(counterByPeriod).then(function(val) {
-        L.has('silly') && L.log('silly', T.add({ requestId, counterByPeriod, ttl: val }).toMessage({
-          tmpl: 'Req[${requestId}] TTL of [${counterByPeriod}]: ${ttl}'
+      return getTtlCommand()(counterName).then(function(val) {
+        L.has('silly') && L.log('silly', T.add({ requestId, counterName, ttl: val }).toMessage({
+          tmpl: 'Req[${requestId}] TTL of [${counterName}]: ${ttl}'
         }));
         if (val <= -1) {
           const tomorrow = nextExpiredTime(now, expirationPeriod);
           const unixtime = tomorrow.valueOf() / 1000;
-          L.has('silly') && L.log('silly', T.add({ requestId, tomorrow, unixtime }).toMessage({
-            tmpl: 'Req[${requestId}] Set a new expire for [${counterByPeriod}] at: ${tomorrow}, in unixtime: ${unixtime}'
+          L.has('silly') && L.log('silly', T.add({ requestId, counterName, tomorrow, unixtime }).toMessage({
+            tmpl: 'Req[${requestId}] Set a new expire for [${counterName}] at: ${tomorrow}, in unixtime: ${unixtime}'
           }));
-          return getExpireAtCommand()(counterByPeriod, unixtime); // 0 or 1
+          return getExpireAtCommand()(counterName, unixtime); // 0 or 1
         }
         return -1;
       })
     });
 
     p = p.then(function (val) {
-      return getIncrCommand()(counterByPeriod);
+      return getIncrCommand()(counterName);
     });
 
     p = p.then(function (number) {

@@ -9,7 +9,7 @@ const genUUID = logolite.LogConfig.getLogID;
 const bases = require('bases');
 const moment = require('moment');
 
-function IdGenerator(kwargs = {}) {
+function CodeGenerator(kwargs = {}) {
   const { L, T, sanitizer, counter, digits } = kwargs;
 
   assert.ok(counter && lodash.isObject(counter), 'counter must be a object');
@@ -26,7 +26,14 @@ function IdGenerator(kwargs = {}) {
   this.generate = function(opts) {
     let { requestId, sequenceName, expirationPeriod } = opts;
 
+    sequenceName = sanitizer.getSequenceName(sequenceName);
     expirationPeriod = sanitizer.getExpirationPeriod(sequenceName, expirationPeriod);
+
+    opts = { requestId, sequenceName, expirationPeriod };
+
+    L.has('info') && L.log('info', T.add(opts).toMessage({
+      tmpl: 'Req[${requestId}] Generate the ID[${sequenceName}] with period [${expirationPeriod}]'
+    }));
 
     return Bluebird.resolve(counter.next(opts))
     .then(function(result = {}) {
@@ -34,7 +41,7 @@ function IdGenerator(kwargs = {}) {
       if (number >= maxOf[expirationPeriod]) {
         return genUUID();
       }
-      L.has('info') && L.log('info', T.add({ requestId, number, expirationPeriod }).toMessage({
+      L.has('info') && L.log('info', T.add({ requestId, number }).toMessage({
         tmpl: 'Req[${requestId}] Generate the ID from auto increament number [${number}]'
       }));
       return generate(expirationPeriod, number, digits, now);
@@ -79,4 +86,4 @@ function letterOf(number) {
   return String.fromCharCode('A'.charCodeAt(0) + (number - 10));
 }
 
-module.exports = IdGenerator;
+module.exports = CodeGenerator;

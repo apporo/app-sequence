@@ -5,7 +5,7 @@ const Bluebird = Devebot.require('bluebird');
 const logolite = Devebot.require('logolite');
 const genUUID = logolite.LogConfig.getLogID;
 const OptionSanitizer = require('../supports/period-sanitizer');
-const IdGenerator = require('../supports/id-generator');
+const CodeGenerator = require('../supports/code-generator');
 const UniqueCounter = require('../supports/unique-counter');
 
 function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
@@ -20,10 +20,10 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
 
   const counter = new UniqueCounter({ L, T, sanitizer, timeout, counterStateKey, counterDialect })
 
-  const generator = new IdGenerator({ L, T, sanitizer, counter, digits: 5 });
+  const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: 5 });
 
-  this.generate = function (opts = { requestId: 'unknown' }) {
-    const { requestId } = opts;
+  this.generate = function (opts) {
+    const { requestId } = opts || { requestId: 'unknown' };
     let p = generator.generate(opts);
 
     p = p.catch(function (err) {
