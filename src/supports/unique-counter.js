@@ -62,7 +62,7 @@ function UniqueCounter (params = {}) {
 
   this.next = function({ requestId, sequenceName, expirationPeriod } = {}) {
     sequenceName = sanitizer.getSequenceName(sequenceName);
-    expirationPeriod = sanitizer.getExpirationPeriod(expirationPeriod);
+    expirationPeriod = sanitizer.getExpirationPeriod(sequenceName, expirationPeriod);
 
     const counterByPeriod = [ counterStateKey, sequenceName, expirationPeriod ].join(':');
 

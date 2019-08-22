@@ -11,13 +11,12 @@ const UniqueCounter = require('../supports/unique-counter');
 function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
   const L = loggingFactory.getLogger();
   const T = loggingFactory.getTracer();
-  const sequenceNames = sandboxConfig.sequenceNames;
-  const expirationPeriod = sandboxConfig.expirationPeriod;
   const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
+  const sequenceGenerator = sandboxConfig.sequenceGenerator;
 
   const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
 
-  const sanitizer = new OptionSanitizer({ sequenceNames, expirationPeriod });
+  const sanitizer = new OptionSanitizer({ sequenceGenerator });
 
   const counter = new UniqueCounter({ L, T, sanitizer, timeout, counterStateKey, counterDialect })
 

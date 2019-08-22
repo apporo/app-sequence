@@ -1,26 +1,30 @@
 'use strict';
 
+const assert = require('assert');
 const Devebot = require('devebot');
 const lodash = Devebot.require('lodash');
 
-function OptionSanitizer ({ sequenceNames, expirationPeriod }) {
-  const d_sequenceNames = [];
-  if (lodash.isArray(sequenceNames)) {
-    Array.prototype.push.apply(d_sequenceNames, sequenceNames);
+function OptionSanitizer ({ sequenceGenerator }) {
+  sequenceGenerator = sequenceGenerator || {};
+  assert.ok(lodash.isObject(sequenceGenerator), 'sequenceGenerator must be a object');
+
+  for (const sequenceName in sequenceGenerator) {
+    sequenceGenerator[sequenceName] = sequenceGenerator[sequenceName] || {};
+    sequenceGenerator[sequenceName].expirationPeriod = 
+        sanitizeExpiresPeriod(sequenceGenerator[sequenceName].expirationPeriod) || 'd';
   }
 
-  const d_expirationPeriod = sanitizeExpiresPeriod(expirationPeriod);
-
   this.getSequenceName = function (sequenceName) {
-    if (d_sequenceNames.indexOf(sequenceName) >= 0) {
+    if (sequenceName in sequenceGenerator) {
       return sequenceName;
     }
     return 'default';
   }
 
-  this.getExpirationPeriod = function (expirationPeriod) {
+  this.getExpirationPeriod = function (sequenceName, expirationPeriod) {
+    sequenceName = this.getSequenceName(sequenceName);
     return sanitizeExpiresPeriod (expirationPeriod) ||
-        sanitizeExpiresPeriod(d_expirationPeriod) || 'd';
+        sequenceGenerator[sequenceName].expirationPeriod || 'd';
   }
 }
 
@@ -42,11 +46,6 @@ function sanitizeExpiresPeriod (expirationPeriod) {
     }
   }
   return null;
-}
-
-function getExpirationPeriod (expirationPeriod, defaultExpiresPeriod) {
-  return sanitizeExpiresPeriod (expirationPeriod) ||
-      sanitizeExpiresPeriod(defaultExpiresPeriod) || 'd';
 }
 
 module.exports = OptionSanitizer;

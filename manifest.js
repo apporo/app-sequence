@@ -13,6 +13,20 @@ module.exports = {
           "expirationPeriod": {
             "type": "string"
           },
+          "sequenceGenerator": {
+            "type": "object",
+            "patternProperties": {
+              "^.+$": {
+                "type": "object",
+                "properties": {
+                  "expirationPeriod": {
+                    "type": "string",
+                    "enum": [ "y", "m", "d" ]
+                  }
+                }
+              }
+            }
+          },
           "timeout": {
             "type": "number"
           }

@@ -24,9 +24,9 @@ function IdGenerator(kwargs = {}) {
   }
 
   this.generate = function(opts) {
-    let { requestId, expirationPeriod } = opts;
+    let { requestId, sequenceName, expirationPeriod } = opts;
 
-    expirationPeriod = sanitizer.getExpirationPeriod(expirationPeriod);
+    expirationPeriod = sanitizer.getExpirationPeriod(sequenceName, expirationPeriod);
 
     return Bluebird.resolve(counter.next(opts))
     .then(function(number) {

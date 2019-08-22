@@ -1,7 +1,12 @@
 module.exports = {
   plugins: {
     appSequence: {
-      timeout: 5000
+      timeout: 5000,
+      sequenceGenerator: {
+        default: {
+          expirationPeriod: 'd'
+        }
+      },
     }
   },
   bridges: {
