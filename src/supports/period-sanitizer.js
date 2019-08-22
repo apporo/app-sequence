@@ -4,22 +4,22 @@ const assert = require('assert');
 const Devebot = require('devebot');
 const lodash = Devebot.require('lodash');
 
-function OptionSanitizer ({ sequenceGenerator }) {
-  sequenceGenerator = sequenceGenerator || {};
-  assert.ok(lodash.isObject(sequenceGenerator), 'sequenceGenerator must be a object');
+function OptionSanitizer ({ sequenceDescriptor }) {
+  sequenceDescriptor = sequenceDescriptor || {};
+  assert.ok(lodash.isObject(sequenceDescriptor), 'sequenceDescriptor must be a object');
 
-  for (const sequenceName in sequenceGenerator) {
-    sequenceGenerator[sequenceName] = sequenceGenerator[sequenceName] || {};
-    sequenceGenerator[sequenceName].expirationPeriod = 
-        sanitizeExpiresPeriod(sequenceGenerator[sequenceName].expirationPeriod) || 'd';
+  for (const sequenceName in sequenceDescriptor) {
+    sequenceDescriptor[sequenceName] = sequenceDescriptor[sequenceName] || {};
+    sequenceDescriptor[sequenceName].expirationPeriod = 
+        sanitizeExpiresPeriod(sequenceDescriptor[sequenceName].expirationPeriod) || 'd';
   }
 
   this.hasSequenceName = function (sequenceName) {
-    return (sequenceName in sequenceGenerator);
+    return (sequenceName in sequenceDescriptor);
   }
 
   this.getSequenceName = function (sequenceName) {
-    if (sequenceName in sequenceGenerator) {
+    if (sequenceName in sequenceDescriptor) {
       return sequenceName;
     }
     return 'default';
@@ -28,7 +28,7 @@ function OptionSanitizer ({ sequenceGenerator }) {
   this.getExpirationPeriod = function (sequenceName, expirationPeriod) {
     sequenceName = this.getSequenceName(sequenceName);
     return sanitizeExpiresPeriod (expirationPeriod) ||
-        sequenceGenerator[sequenceName].expirationPeriod || 'd';
+        sequenceDescriptor[sequenceName].expirationPeriod || 'd';
   }
 }
 

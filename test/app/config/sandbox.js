@@ -19,7 +19,7 @@ module.exports = {
     },
     appSequence: {
       counterStateKey: 'dev:sequence-counter',
-      sequenceGenerator: {
+      sequenceDescriptor: {
         example: {
           expirationPeriod: 'm'
         },
@@ -27,6 +27,7 @@ module.exports = {
           expirationPeriod: 'y'
         }
       },
+      digits: 4
     },
     appWebserver: {
       port: 17771

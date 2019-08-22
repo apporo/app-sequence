@@ -2,7 +2,7 @@ module.exports = {
   plugins: {
     appSequence: {
       timeout: 5000,
-      sequenceGenerator: {
+      sequenceDescriptor: {
         default: {
           expirationPeriod: 'd'
         }

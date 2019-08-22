@@ -7,7 +7,7 @@ module.exports = {
           "counterStateKey": {
             "type": "string"
           },
-          "sequenceGenerator": {
+          "sequenceDescriptor": {
             "type": "object",
             "patternProperties": {
               "^[a-z][a-z\\-]*[a-z]$": {
@@ -20,6 +20,11 @@ module.exports = {
                 }
               }
             }
+          },
+          "digits": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 9,
           },
           "timeout": {
             "type": "number"

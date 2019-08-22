@@ -28,7 +28,7 @@ describe('supports', function() {
       next.onCall(1).returns({ number: Math.pow(36, 5) - 1024 });
       next.onCall(2).returns({ number: Math.pow(36, 6) - 256 });
       const sanitizer = new OptionSanitizer({
-        sequenceGenerator: {
+        sequenceDescriptor: {
           "abc-xyz": {
             expirationPeriod: 'y'
           }

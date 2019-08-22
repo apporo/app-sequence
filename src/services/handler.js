@@ -12,15 +12,15 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
   const L = loggingFactory.getLogger();
   const T = loggingFactory.getTracer();
   const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
-  const sequenceGenerator = sandboxConfig.sequenceGenerator;
+  const sequenceDescriptor = sandboxConfig.sequenceDescriptor;
 
   const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
 
-  const sanitizer = new OptionSanitizer({ sequenceGenerator });
+  const sanitizer = new OptionSanitizer({ sequenceDescriptor });
 
   const counter = new UniqueCounter({ L, T, sanitizer, timeout, counterStateKey, counterDialect })
 
-  const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: 5 });
+  const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: sandboxConfig.digits || 5 });
 
   this.generate = function (opts = { requestId: 'unknown' }) {
     const { requestId } = opts;
