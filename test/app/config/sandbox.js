@@ -20,15 +20,17 @@ module.exports = {
     appSequence: {
       counterStateKey: 'dev:sequence-counter',
       sequenceDescriptor: {
-        example: {
+        "example": {
           expirationPeriod: 'm'
+        },
+        "devebot": {
+          digits: 4
         },
         "abc-xyz": {
           digits: 8,
           expirationPeriod: 'y'
         }
-      },
-      digits: 4
+      }
     },
     appWebserver: {
       port: 17771

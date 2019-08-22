@@ -13,18 +13,19 @@ module.exports = {
               "^[a-z][a-z\\-]*[a-z]$": {
                 "type": "object",
                 "properties": {
+                  "digits": {
+                    "type": "number",
+                    "minimum": 3,
+                    "maximum": 9,
+                  },
                   "expirationPeriod": {
                     "type": "string",
                     "enum": [ "y", "m", "d" ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             }
-          },
-          "digits": {
-            "type": "number",
-            "minimum": 3,
-            "maximum": 9,
           },
           "timeout": {
             "type": "number"
