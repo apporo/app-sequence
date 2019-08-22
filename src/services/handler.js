@@ -4,8 +4,7 @@ const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
 const logolite = Devebot.require('logolite');
 const genUUID = logolite.LogConfig.getLogID;
-const Base36Generator = require('../supports/base36-generator');
-const DailyGenerator = require('../supports/daily-generator');
+const IdGenerator = require('../supports/id-generator');
 const UniqueCounter = require('../supports/unique-counter');
 
 function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
@@ -18,20 +17,11 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
 
   const counter = new UniqueCounter({ L, T, timeout, expirationPeriod, counterStateKey, counterDialect })
 
-  let generator;
-  switch (expirationPeriod) {
-    case 'm':
-    case 'month':
-    case 'monthly':
-      generator = new Base36Generator({ L, T, counter, digits: 6 });
-      break;
-    default:
-      generator = new DailyGenerator({ L, T, counter, digits: 5 });
-      break;
-  }
+  const generator = new IdGenerator({ L, T, counter, digits: 5, expirationPeriod });
 
-  this.generate = function (data, { requestId } = { requestId: 'unknown' }) {
-    let p = generator.generate({ requestId });
+  this.generate = function (opts = { requestId: 'unknown' }) {
+    const { requestId } = opts;
+    let p = generator.generate(opts);
 
     p = p.catch(function (err) {
       if (sandboxConfig.breakOnError) {

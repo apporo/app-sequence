@@ -3,8 +3,10 @@
 const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
 const moment = require('moment');
+const getExpirationPeriod = require('./period-sanitizer');
 
 function UniqueCounter ({ L, T, timeout, expirationPeriod, counterStateKey, counterDialect }) {
+  const defaultExpiresPeriod = expirationPeriod;
   let counterClient = null;
   let counterEnabled = true;
 
@@ -58,7 +60,11 @@ function UniqueCounter ({ L, T, timeout, expirationPeriod, counterStateKey, coun
     return _TtlCommand;
   }
 
-  this.next = function({ requestId } = {}) {
+  this.next = function({ requestId, expirationPeriod } = {}) {
+    expirationPeriod = getExpirationPeriod(expirationPeriod, defaultExpiresPeriod);
+
+    const counterByPeriod = counterStateKey + ':' + expirationPeriod;
+
     const now = moment.utc();
     L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
       tmpl: 'Req[${requestId}] Generate a new ID at ${now}'
@@ -75,38 +81,40 @@ function UniqueCounter ({ L, T, timeout, expirationPeriod, counterStateKey, coun
     }
 
     p = p.then(function() {
-      return getTtlCommand()(counterStateKey).then(function(val) {
-        L.has('silly') && L.log('silly', T.add({ requestId, counterStateKey, ttl: val }).toMessage({
-          tmpl: 'Req[${requestId}] TTL of ${counterStateKey}: ${ttl}'
+      return getTtlCommand()(counterByPeriod).then(function(val) {
+        L.has('silly') && L.log('silly', T.add({ requestId, counterByPeriod, ttl: val }).toMessage({
+          tmpl: 'Req[${requestId}] TTL of ${counterByPeriod}: ${ttl}'
         }));
         if (val <= -1) {
-          const tomorrow = nextExpiredTime(now, { expirationPeriod });
+          const tomorrow = nextExpiredTime(now, expirationPeriod);
           const unixtime = tomorrow.valueOf() / 1000;
           L.has('silly') && L.log('silly', T.add({ requestId, tomorrow, unixtime }).toMessage({
-            tmpl: 'Req[${requestId}] Set a new expire for ${counterStateKey} at: ${tomorrow}, in unixtime: ${unixtime}'
+            tmpl: 'Req[${requestId}] Set a new expire for ${counterByPeriod} at: ${tomorrow}, in unixtime: ${unixtime}'
           }));
-          return getExpireAtCommand()(counterStateKey, unixtime); // 0 or 1
+          return getExpireAtCommand()(counterByPeriod, unixtime); // 0 or 1
         }
         return -1;
       })
     });
 
     p = p.then(function (val) {
-      return getIncrCommand()(counterStateKey);
+      return getIncrCommand()(counterByPeriod);
     });
 
     return p;
   }
 }
 
-function nextExpiredTime(now, { expirationPeriod } = {}) {
+function nextExpiredTime(now, expirationPeriod) {
   switch (expirationPeriod) {
+    case 'd':
+      return now.add(1, 'days').hour(0).minute(0).second(0).millisecond(0);
     case 'm':
-    case 'month':
-    case 'monthly':
-      return now.add(1, 'm').day(0).hour(0).minute(0).second(0).millisecond(0);
+      return now.add(1, 'months').day(0).hour(0).minute(0).second(0).millisecond(0);
+    case 'y':
+      return now.add(1, 'years').month(0).day(0).hour(0).minute(0).second(0).millisecond(0);
   }
-  return now.add(1, 'd').hour(0).minute(0).second(0).millisecond(0);
+  throw new Error('Invalid expirationPeriod');
 }
 
 module.exports = UniqueCounter;

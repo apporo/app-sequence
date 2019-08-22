@@ -7,17 +7,13 @@ var mappings = [
     input: {
       transform: function (req) {
         return {
-          requestId: req.get('X-Request-Id')
+          requestId: req.get('X-Request-Id'),
+          expirationPeriod: req.get('X-Expiration-Period')
         }
       },
     },
     serviceName: 'app-sequence/handler',
     methodName: 'generate',
-    error: {
-      transform: function(err, req) {
-        return err;
-      },
-    },
     output: {
       transform: function(result, req) {
         return {

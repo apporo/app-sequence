@@ -18,6 +18,7 @@ module.exports = {
       tracingBoundaryEnabled: true
     },
     appSequence: {
+      expirationPeriod: 'y',
       counterStateKey: 'dev:sequence-counter'
     },
     appWebserver: {

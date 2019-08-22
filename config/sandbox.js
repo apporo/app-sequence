@@ -1,7 +1,6 @@
 module.exports = {
   plugins: {
     appSequence: {
-      expirationPeriod: 'month',
       timeout: 5000
     }
   },
