@@ -84,13 +84,13 @@ function UniqueCounter (params = {}) {
     p = p.then(function() {
       return getTtlCommand()(counterByPeriod).then(function(val) {
         L.has('silly') && L.log('silly', T.add({ requestId, counterByPeriod, ttl: val }).toMessage({
-          tmpl: 'Req[${requestId}] TTL of ${counterByPeriod}: ${ttl}'
+          tmpl: 'Req[${requestId}] TTL of [${counterByPeriod}]: ${ttl}'
         }));
         if (val <= -1) {
           const tomorrow = nextExpiredTime(now, expirationPeriod);
           const unixtime = tomorrow.valueOf() / 1000;
           L.has('silly') && L.log('silly', T.add({ requestId, tomorrow, unixtime }).toMessage({
-            tmpl: 'Req[${requestId}] Set a new expire for ${counterByPeriod} at: ${tomorrow}, in unixtime: ${unixtime}'
+            tmpl: 'Req[${requestId}] Set a new expire for [${counterByPeriod}] at: ${tomorrow}, in unixtime: ${unixtime}'
           }));
           return getExpireAtCommand()(counterByPeriod, unixtime); // 0 or 1
         }
@@ -101,6 +101,10 @@ function UniqueCounter (params = {}) {
     p = p.then(function (val) {
       return getIncrCommand()(counterByPeriod);
     });
+
+    p = p.then(function (number) {
+      return { now, number };
+    })
 
     return p;
   }

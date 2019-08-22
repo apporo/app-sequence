@@ -29,30 +29,31 @@ function IdGenerator(kwargs = {}) {
     expirationPeriod = sanitizer.getExpirationPeriod(sequenceName, expirationPeriod);
 
     return Bluebird.resolve(counter.next(opts))
-    .then(function(number) {
+    .then(function(result = {}) {
+      const { now, number } = result;
       if (number >= maxOf[expirationPeriod]) {
         return genUUID();
       }
       L.has('info') && L.log('info', T.add({ requestId, number, expirationPeriod }).toMessage({
         tmpl: 'Req[${requestId}] Generate the ID from auto increament number [${number}]'
       }));
-      return generate(expirationPeriod, number, digits);
+      return generate(expirationPeriod, number, digits, now);
     });
   }
 }
 
-function generate (expirationPeriod, number, digits) {
+function generate (expirationPeriod, number, digits, now) {
   switch (expirationPeriod) {
     case 'y': {
       const value = bases.toBase36(number);
-      return getYear() + '-' + lodash.padStart(value, (digits + 1), '0');
+      return getYear(now) + '-' + lodash.padStart(value, (digits + 1), '0');
     }
     case 'm': {
       const value = bases.toBase36(number);
-      return getMonth() + '-' + lodash.padStart(value, digits, '0');
+      return getMonth(now) + '-' + lodash.padStart(value, digits, '0');
     }
     case 'd': {
-      return getDate() + '-' + lodash.padStart(number, digits, '0');
+      return getDate(now) + '-' + lodash.padStart(number, digits, '0');
     }
   }
   throw new Error('Invalid expirationPeriod');
