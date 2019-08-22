@@ -4,7 +4,7 @@ const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
 const moment = require('moment');
 
-function UniqueCounter ({ L, T, timeout, counterStateKey, counterDialect }) {
+function UniqueCounter ({ L, T, timeout, expirationPeriod, counterStateKey, counterDialect }) {
   let counterClient = null;
   let counterEnabled = true;
 
@@ -80,7 +80,7 @@ function UniqueCounter ({ L, T, timeout, counterStateKey, counterDialect }) {
           tmpl: 'Req[${requestId}] TTL of ${counterStateKey}: ${ttl}'
         }));
         if (val <= -1) {
-          const tomorrow = now.add(1, 'd').hour(0).minute(0).second(0).millisecond(0);
+          const tomorrow = nextExpiredTime(now, { expirationPeriod });
           const unixtime = tomorrow.valueOf() / 1000;
           L.has('silly') && L.log('silly', T.add({ requestId, tomorrow, unixtime }).toMessage({
             tmpl: 'Req[${requestId}] Set a new expire for ${counterStateKey} at: ${tomorrow}, in unixtime: ${unixtime}'
@@ -97,6 +97,16 @@ function UniqueCounter ({ L, T, timeout, counterStateKey, counterDialect }) {
 
     return p;
   }
+}
+
+function nextExpiredTime(now, { expirationPeriod } = {}) {
+  switch (expirationPeriod) {
+    case 'm':
+    case 'month':
+    case 'monthly':
+      return now.add(1, 'm').day(0).hour(0).minute(0).second(0).millisecond(0);
+  }
+  return now.add(1, 'd').hour(0).minute(0).second(0).millisecond(0);
 }
 
 module.exports = UniqueCounter;

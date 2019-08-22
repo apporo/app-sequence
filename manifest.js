@@ -10,6 +10,9 @@ module.exports = {
           "counterStateKey": {
             "type": "string"
           },
+          "expirationPeriod": {
+            "type": "string"
+          },
           "timeout": {
             "type": "number"
           }
