@@ -5,7 +5,7 @@ const Bluebird = Devebot.require('bluebird');
 const moment = require('moment');
 
 function UniqueCounter (params = {}) {
-  const { L, T, sanitizer, timeout, counterStateKey, counterDialect } = params;
+  const { L, T, sanitizer, timeout, counterStateKey, counterDialect, errorBuilder } = params;
 
   let counterClient = null;
   let counterEnabled = true;
@@ -80,7 +80,7 @@ function UniqueCounter (params = {}) {
     }
 
     if (counterEnabled === false) {
-      p = Bluebird.reject();
+      p = Bluebird.reject(errorBuilder.newError('RedisConnectionLost'));
     }
 
     p = p.then(function() {

@@ -22,7 +22,7 @@ function Service ({ packageName, sandboxConfig, loggingFactory, errorManager, co
 
   const sanitizer = new OptionSanitizer({ sequenceDescriptor });
 
-  const counter = new UniqueCounter({ L, T, sanitizer, timeout, counterStateKey, counterDialect })
+  const counter = new UniqueCounter({ L, T, sanitizer, timeout, errorBuilder, counterStateKey, counterDialect })
 
   const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: sandboxConfig.digits || 5 });
 

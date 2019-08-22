@@ -13,6 +13,11 @@ module.exports = {
           returnCode: 5001,
           statusCode: 400
         },
+        RedisConnectionLost: {
+          message: 'Lost Connection to Redis Server',
+          returnCode: 5002,
+          statusCode: 500
+        },
       },
     }
   },
