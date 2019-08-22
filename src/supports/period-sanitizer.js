@@ -4,6 +4,8 @@ const assert = require('assert');
 const Devebot = require('devebot');
 const lodash = Devebot.require('lodash');
 
+const DEFAULT_DIGITS = 5;
+
 function OptionSanitizer ({ sequenceDescriptor }) {
   sequenceDescriptor = sequenceDescriptor || {};
   assert.ok(lodash.isObject(sequenceDescriptor), 'sequenceDescriptor must be a object');
@@ -12,6 +14,7 @@ function OptionSanitizer ({ sequenceDescriptor }) {
     sequenceDescriptor[sequenceName] = sequenceDescriptor[sequenceName] || {};
     sequenceDescriptor[sequenceName].expirationPeriod = 
         sanitizeExpiresPeriod(sequenceDescriptor[sequenceName].expirationPeriod) || 'd';
+    sequenceDescriptor[sequenceName].digits = sequenceDescriptor[sequenceName].digits || DEFAULT_DIGITS;
   }
 
   this.hasSequenceName = function (sequenceName) {
@@ -29,6 +32,13 @@ function OptionSanitizer ({ sequenceDescriptor }) {
     sequenceName = this.getSequenceName(sequenceName);
     return sanitizeExpiresPeriod (expirationPeriod) ||
         sequenceDescriptor[sequenceName].expirationPeriod || 'd';
+  }
+
+  this.getDigits = function (sequenceName) {
+    if (sequenceName in sequenceDescriptor) {
+      return sequenceDescriptor[sequenceName].digits;
+    }
+    return DEFAULT_DIGITS;
   }
 }
 

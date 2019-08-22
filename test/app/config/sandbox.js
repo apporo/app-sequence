@@ -24,6 +24,7 @@ module.exports = {
           expirationPeriod: 'm'
         },
         "abc-xyz": {
+          digits: 8,
           expirationPeriod: 'y'
         }
       },

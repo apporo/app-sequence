@@ -17,11 +17,7 @@ function CodeGenerator(kwargs = {}) {
   assert.ok(digits >= 2, 'digits must be at least 2 digits');
   assert.ok(digits <= 9, 'digits must be at most 9 digits');
 
-  const maxOf = {
-    d: Math.pow(10, digits),
-    m: Math.pow(36, digits),
-    y: Math.pow(36, (digits + 1))
-  }
+  const maxOf = [];
 
   this.generate = function(opts) {
     let { requestId, sequenceName, expirationPeriod } = opts;
@@ -31,6 +27,14 @@ function CodeGenerator(kwargs = {}) {
 
     opts = { requestId, sequenceName, expirationPeriod };
 
+    const digits = sanitizer.getDigits(sequenceName);
+
+    maxOf[digits] = maxOf[digits] || {
+      d: Math.pow(10, digits),
+      m: Math.pow(36, digits),
+      y: Math.pow(36, (digits + 1))
+    }
+
     L.has('info') && L.log('info', T.add(opts).toMessage({
       tmpl: 'Req[${requestId}] Generate the ID[${sequenceName}] with period [${expirationPeriod}]'
     }));
@@ -38,7 +42,7 @@ function CodeGenerator(kwargs = {}) {
     return Bluebird.resolve(counter.next(opts))
     .then(function(result = {}) {
       const { now, number } = result;
-      if (number >= maxOf[expirationPeriod]) {
+      if (number >= maxOf[digits][expirationPeriod]) {
         return genUUID();
       }
       L.has('info') && L.log('info', T.add({ requestId, number }).toMessage({
