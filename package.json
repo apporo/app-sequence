@@ -38,10 +38,12 @@
   },
   "homepage": "https://github.com/apporo/app-sequence#readme",
   "peerDependencies": {
+    "app-errorlist": "^0.3.5",
     "devebot": "^0.3.0",
     "devebot-co-redis": "^0.3.0"
   },
   "dependencies": {
+    "app-errorlist": "^0.3.5",
     "bases": "^0.2.1",
     "devebot": "^0.3.0",
     "devebot-co-redis": "^0.3.0",

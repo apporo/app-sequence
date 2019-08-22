@@ -7,6 +7,13 @@ module.exports = {
           expirationPeriod: 'd'
         }
       },
+      errorCodes: {
+        SequenceNameNotFound: {
+          message: 'Sequence generator not found',
+          returnCode: 5001,
+          statusCode: 400
+        },
+      },
     }
   },
   bridges: {

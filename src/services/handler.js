@@ -8,11 +8,15 @@ const OptionSanitizer = require('../supports/period-sanitizer');
 const CodeGenerator = require('../supports/code-generator');
 const UniqueCounter = require('../supports/unique-counter');
 
-function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
+function Service ({ packageName, sandboxConfig, loggingFactory, errorManager, counterDialect }) {
   const L = loggingFactory.getLogger();
   const T = loggingFactory.getTracer();
   const counterStateKey = sandboxConfig.counterStateKey || "sequence-counter";
   const sequenceDescriptor = sandboxConfig.sequenceDescriptor;
+
+  const errorBuilder = errorManager.register(packageName, {
+    errorCodes: sandboxConfig.errorCodes
+  });
 
   const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
 
@@ -23,7 +27,16 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
   const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: sandboxConfig.digits || 5 });
 
   this.generate = function (opts = { requestId: 'unknown' }) {
-    const { requestId } = opts;
+    const { requestId, sequenceName } = opts;
+
+    if (sequenceName && !sanitizer.hasSequenceName(sequenceName)) {
+      return Bluebird.reject(errorBuilder.newError('SequenceNameNotFound', {
+        payload: {
+          sequenceName: sequenceName
+        }
+      }));
+    }
+
     let p = generator.generate(opts);
 
     p = p.catch(function (err) {
@@ -46,6 +59,7 @@ function Service ({ sandboxConfig, loggingFactory, counterDialect }) {
 }
 
 Service.referenceHash = {
+  errorManager: 'app-errorlist/manager',
   counterDialect: "redis#stateStore"
 }
 
