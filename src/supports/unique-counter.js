@@ -3,10 +3,10 @@
 const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
 const moment = require('moment');
-const getExpirationPeriod = require('./period-sanitizer');
 
-function UniqueCounter ({ L, T, timeout, expirationPeriod, counterStateKey, counterDialect }) {
-  const defaultExpiresPeriod = expirationPeriod;
+function UniqueCounter (params = {}) {
+  const { L, T, sanitizer, timeout, counterStateKey, counterDialect } = params;
+
   let counterClient = null;
   let counterEnabled = true;
 
@@ -60,10 +60,11 @@ function UniqueCounter ({ L, T, timeout, expirationPeriod, counterStateKey, coun
     return _TtlCommand;
   }
 
-  this.next = function({ requestId, expirationPeriod } = {}) {
-    expirationPeriod = getExpirationPeriod(expirationPeriod, defaultExpiresPeriod);
+  this.next = function({ requestId, sequenceName, expirationPeriod } = {}) {
+    sequenceName = sanitizer.getSequenceName(sequenceName);
+    expirationPeriod = sanitizer.getExpirationPeriod(expirationPeriod);
 
-    const counterByPeriod = counterStateKey + ':' + expirationPeriod;
+    const counterByPeriod = [ counterStateKey, sequenceName, expirationPeriod ].join(':');
 
     const now = moment.utc();
     L.has('info') && L.log('info', T.add({ requestId, now }).toMessage({
