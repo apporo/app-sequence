@@ -20,11 +20,11 @@ function Service ({ packageName, sandboxConfig, loggingFactory, errorManager, co
 
   const timeout = sandboxConfig.timeout && sandboxConfig.timeout > 0 ? sandboxConfig.timeout : 0;
 
-  const sanitizer = new OptionSanitizer({ sequenceDescriptor });
+  const sanitizer = new OptionSanitizer({ sequenceDescriptor, generalDigits: sandboxConfig.digits });
 
   const counter = new UniqueCounter({ L, T, sanitizer, timeout, errorBuilder, counterStateKey, counterDialect })
 
-  const generator = new CodeGenerator({ L, T, sanitizer, counter, digits: sandboxConfig.digits || 5 });
+  const generator = new CodeGenerator({ L, T, sanitizer, counter });
 
   this.generate = function (opts = { requestId: 'unknown' }) {
     const { requestId, sequenceName } = opts;

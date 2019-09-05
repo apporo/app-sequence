@@ -10,12 +10,10 @@ const bases = require('bases');
 const moment = require('moment');
 
 function CodeGenerator(kwargs = {}) {
-  const { L, T, sanitizer, counter, digits } = kwargs;
+  const { L, T, sanitizer, counter } = kwargs;
 
   assert.ok(counter && lodash.isObject(counter), 'counter must be a object');
   assert.ok(lodash.isFunction(counter.next), 'counter.next must be a function');
-  assert.ok(digits >= 2, 'digits must be at least 2 digits');
-  assert.ok(digits <= 9, 'digits must be at most 9 digits');
 
   const maxOf = [];
 

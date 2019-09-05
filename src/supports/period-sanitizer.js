@@ -6,7 +6,7 @@ const lodash = Devebot.require('lodash');
 
 const DEFAULT_DIGITS = 5;
 
-function OptionSanitizer ({ sequenceDescriptor }) {
+function OptionSanitizer ({ sequenceDescriptor, generalDigits }) {
   sequenceDescriptor = sequenceDescriptor || {};
   assert.ok(lodash.isObject(sequenceDescriptor), 'sequenceDescriptor must be a object');
 
@@ -14,7 +14,10 @@ function OptionSanitizer ({ sequenceDescriptor }) {
     sequenceDescriptor[sequenceName] = sequenceDescriptor[sequenceName] || {};
     sequenceDescriptor[sequenceName].expirationPeriod = 
         sanitizeExpiresPeriod(sequenceDescriptor[sequenceName].expirationPeriod) || 'd';
-    sequenceDescriptor[sequenceName].digits = sequenceDescriptor[sequenceName].digits || DEFAULT_DIGITS;
+    sequenceDescriptor[sequenceName].digits = sequenceDescriptor[sequenceName].digits ||
+        generalDigits || DEFAULT_DIGITS;
+    assert.ok(sequenceDescriptor[sequenceName].digits >= 2, 'digits must be at least 2 digits');
+    assert.ok(sequenceDescriptor[sequenceName].digits <= 9, 'digits must be at most 9 digits');
   }
 
   this.hasSequenceName = function (sequenceName) {

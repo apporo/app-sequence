@@ -30,14 +30,14 @@ describe('supports', function() {
       const sanitizer = new OptionSanitizer({
         sequenceDescriptor: {
           "abc-xyz": {
+            digits: 6,
             expirationPeriod: 'y'
           }
         }
       });
       const generator = new CodeGenerator(lodash.assign(ctx, {
         sanitizer,
-        counter: { next },
-        digits: 6
+        counter: { next }
       }));
       const promises = Bluebird.map(lodash.range(3), function(count) {
         return generator.generate({ sequenceName: "abc-xyz" });
