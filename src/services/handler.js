@@ -4,7 +4,7 @@ const Devebot = require('devebot');
 const Bluebird = Devebot.require('bluebird');
 const logolite = Devebot.require('logolite');
 const genUUID = logolite.LogConfig.getLogID;
-const OptionSanitizer = require('../supports/period-sanitizer');
+const OptionSanitizer = require('../supports/option-sanitizer');
 const CodeGenerator = require('../supports/code-generator');
 const UniqueCounter = require('../supports/unique-counter');
 

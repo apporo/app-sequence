@@ -16,7 +16,7 @@ describe('supports', function() {
       blockRef: 'app-restfront',
     }
 
-    var OptionSanitizer = dtk.acquire('period-sanitizer', { moduleType: 'supports' });
+    var OptionSanitizer = dtk.acquire('option-sanitizer', { moduleType: 'supports' });
     var CodeGenerator = dtk.acquire('code-generator', { moduleType: 'supports' });
 
     beforeEach(function() {
