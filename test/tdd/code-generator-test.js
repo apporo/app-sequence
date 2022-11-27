@@ -13,7 +13,7 @@ describe('supports', function() {
     var ctx = {
       L: loggingFactory.getLogger(),
       T: loggingFactory.getTracer(),
-      blockRef: 'app-restfront',
+      blockRef: 'app-sequence/handler',
     }
 
     var OptionSanitizer = dtk.acquire('option-sanitizer', { moduleType: 'supports' });
