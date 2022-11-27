@@ -5,6 +5,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "app-restfront": "^0.4.0",
     "liberica": "^0.4.0"
   },
   "author": "devebot",

@@ -1,6 +1,6 @@
 {
   "name": "app-sequence",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Sequence ID generator",
   "main": "index.js",
   "files": [
@@ -38,19 +38,18 @@
   },
   "homepage": "https://github.com/apporo/app-sequence#readme",
   "peerDependencies": {
-    "app-errorlist": "^0.3.5",
-    "devebot": "^0.3.0",
-    "devebot-co-redis": "^0.3.0"
+    "app-errorlist": "^0.4.0",
+    "devebot": "^0.4.0",
+    "devebot-co-redis": "^0.4.0"
   },
   "dependencies": {
-    "app-errorlist": "^0.3.5",
+    "app-errorlist": "^0.4.0",
     "bases": "0.2.1",
-    "devebot": "^0.3.0",
-    "devebot-co-redis": "^0.3.0",
-    "moment": "2.24.0"
+    "devebot": "^0.4.0",
+    "devebot-co-redis": "^0.4.0",
+    "moment": "2.29.4"
   },
   "devDependencies": {
-    "app-restfront": "^0.3.2",
     "@babel/cli": "^7.19.3",
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",

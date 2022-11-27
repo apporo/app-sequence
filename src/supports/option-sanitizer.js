@@ -12,7 +12,7 @@ function OptionSanitizer ({ sequenceDescriptor, generalDigits }) {
 
   for (const sequenceName in sequenceDescriptor) {
     sequenceDescriptor[sequenceName] = sequenceDescriptor[sequenceName] || {};
-    sequenceDescriptor[sequenceName].expirationPeriod = 
+    sequenceDescriptor[sequenceName].expirationPeriod =
         sanitizeExpiresPeriod(sequenceDescriptor[sequenceName].expirationPeriod) || 'd';
     sequenceDescriptor[sequenceName].digits = sequenceDescriptor[sequenceName].digits ||
         generalDigits || DEFAULT_DIGITS;
@@ -33,7 +33,7 @@ function OptionSanitizer ({ sequenceDescriptor, generalDigits }) {
 
   this.getExpirationPeriod = function (sequenceName, expirationPeriod) {
     sequenceName = this.getSequenceName(sequenceName);
-    return sanitizeExpiresPeriod (expirationPeriod) ||
+    return sanitizeExpiresPeriod(expirationPeriod) ||
         sequenceDescriptor[sequenceName].expirationPeriod || 'd';
   }
 
